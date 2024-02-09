@@ -6,7 +6,8 @@ const { isNullOrUndefined } = require('util');
 
 
 const app = express()
-const port = process.env.PORT || 3000
+//const port = process.env.PORT || 3000
+const port = process.env.PORT || 80
 
 // Configurar la rebuda d'arxius a través de POST
 const storage = multer.memoryStorage(); // Guardarà l'arxiu a la memòria
@@ -51,6 +52,7 @@ app.post('/api/user/validate', async (req, res) => {
 
 // Endpoint descripcio imatges
 app.post('/api/maria/image', upload.array('file'), async (req, res) => {
+  console.log("In endpoint maria/image")
   const reqBody = req.body;
   const base64Images = [];
 
@@ -109,7 +111,6 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
             } else {
               const jsonData = JSON.parse(jsonString);
               console.log(jsonData.response);
-              console.log(typeof jsonData.response);
               res.write(jsonData.response);
             }
             
