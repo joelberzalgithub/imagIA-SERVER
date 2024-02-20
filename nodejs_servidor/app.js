@@ -1,7 +1,7 @@
 const express = require('express')
 const multer = require('multer');
 //const fetch = require('cross-fetch');
-const fs = require('fs');
+//const fs = require('fs');
 const url = require('url');
 const { isNullOrUndefined } = require('util');
 
