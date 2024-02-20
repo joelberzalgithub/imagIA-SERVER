@@ -67,7 +67,9 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
     base64Images.push(base64StringImg);
   }
 
-  const url = "http://localhost:11434/api/generate";
+  //const url = "http://localhost:11434/api/generate";
+  const url = "http://192.168.1.14:11434/api/generate";
+  
   var textImagePrompt = reqBody.prompt
   if (isBlank(textImagePrompt)) {
     console.log("texto vacio");
