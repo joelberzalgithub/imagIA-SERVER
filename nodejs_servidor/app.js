@@ -44,11 +44,14 @@ function shutDown() {
 // Endpoint registrar usuari
 app.post('/api/user/register', async (req, res) => {
   console.log("En registre d'usuari");
+  const textPost = req.body;
+  console.log(textPost);
 })
 
 // Endpoint validar usuari
 app.post('/api/user/validate', async (req, res) => {
   console.log("En validar usuari");
+  
 })
 
 // Endpoint descripcio imatges
