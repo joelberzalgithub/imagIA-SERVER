@@ -89,6 +89,7 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+      console.log(response.body)
       const reader = response.body.getReader();
       while (true) {
           const { done, value } = await reader.read();
