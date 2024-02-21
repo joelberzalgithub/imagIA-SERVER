@@ -45,7 +45,24 @@ function shutDown() {
 app.post('/api/user/register', async (req, res) => {
   console.log("En registre d'usuari");
   const textPost = req.body;
+  serverBody = {nickname : textPost.name, telefon:textPost.phone, email: textPost.email, codi_validacio:"123456789"};
   console.log(textPost);
+  try {
+    const response = await fetch('http://localhost:8080/api/usuari/registrar', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(serverBody)
+    });
+
+    const data = await response.json();
+    console.log(data);
+    res.send(data); // Send response from your database to the client
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
 })
 
 // Endpoint validar usuari
@@ -63,6 +80,14 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
   // User validado
   if (!tokenValidation(reqBody.token)) {
     res.status(400).json({ status: "ERROR", message: 'Token not valid', data:{} });
+    return;
+  }
+
+  // registrar respuesta
+  const isRegisteredDBAPI = await saveRequestDBAPI("llava", reqBody.prompt, req.files);
+  console.log(isRegisteredDBAPI);
+  if (!isRegisteredDBAPI) {
+    console.log("no se pudo registrar en DBAPI, saliendo...");
     return;
   }
 
@@ -136,6 +161,42 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
     });
 
 })
+
+// funcion para guardar petición de mistral a db
+async function saveRequestDBAPI(model, prompt, filesList) {
+  let listab64 = [];
+  var objRequest = {"model":model, "prompt":prompt};
+
+  for (const file of filesList) {
+    const base64StringImg = file.buffer.toString('base64');
+	console.log("image processed");
+    listab64.push(base64StringImg);
+	objRequest.imatges = base64StringImg;
+  }
+  // TIENE QUE SER UNA LISTA PERO DE MOMENTO SERA 1 IMAGEN SOLO
+  //objRequest.imatges = listab64[0];
+console.log(objRequest);
+	
+  try {
+    const response = await fetch('http://localhost:8080/api/peticions/afegir',{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(objRequest)
+    });
+
+    const data = await response.json();
+    console.log(data);
+    if (data.status === "OK") {
+      return true;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  return false;
+}
 
 // Funcion para en un futuro validar el token
 function tokenValidation(providedToken) {
