@@ -83,17 +83,18 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
     return;
   }
 
-  // registrar respuesta
-  const isRegisteredDBAPI = await saveRequestDBAPI("llava", reqBody.prompt, req.files);
-  console.log(isRegisteredDBAPI);
-  if (!isRegisteredDBAPI) {
-    console.log("no se pudo registrar en DBAPI, saliendo...");
-    return;
-  }
 
   for (const file of req.files) {
     const base64StringImg = file.buffer.toString('base64');
     base64Images.push(base64StringImg);
+  }
+
+  // registrar respuesta
+  const isRegisteredDBAPI = await saveRequestDBAPI("llava", reqBody.prompt, base64Images);
+  console.log(isRegisteredDBAPI);
+  if (!isRegisteredDBAPI) {
+    console.log("no se pudo registrar en DBAPI, saliendo...");
+    return;
   }
 
   //const url = "http://localhost:11434/api/generate";
@@ -117,7 +118,7 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      console.log(response.body)
+      //console.log(response.body)
       const reader = response.body.getReader();
       while (true) {
           const { done, value } = await reader.read();
@@ -129,20 +130,20 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
           if (value != null) {
             const jsonString = new TextDecoder().decode(value);
             separatedJsonArray = jsonString.split("\n");
-            console.log('Raw JSON:', jsonString);
+            //console.log('Raw JSON:', jsonString);
             separatedJsonArray = separatedJsonArray.filter(e => e !== '')
-            console.log(separatedJsonArray);
+            //console.log(separatedJsonArray);
 
             if (separatedJsonArray.length > 1) {
               for (let index = 0; index < separatedJsonArray.length; index++) {
                 const element = separatedJsonArray[index];
                 const jsonData = JSON.parse(element);
-                console.log(jsonData.response);
+                //console.log(jsonData.response);
                 res.write(jsonData.response);
               }
             } else {
               const jsonData = JSON.parse(jsonString);
-              console.log(jsonData.response);
+              //console.log(jsonData.response);
               res.write(jsonData.response);
             }
             
@@ -168,14 +169,12 @@ async function saveRequestDBAPI(model, prompt, filesList) {
   var objRequest = {"model":model, "prompt":prompt};
 
   for (const file of filesList) {
-    const base64StringImg = file.buffer.toString('base64');
-	console.log("image processed");
-    listab64.push(base64StringImg);
-	objRequest.imatges = base64StringImg;
+    listab64.push(file);
+	objRequest.imatges = file;
   }
   // TIENE QUE SER UNA LISTA PERO DE MOMENTO SERA 1 IMAGEN SOLO
   //objRequest.imatges = listab64[0];
-console.log(objRequest);
+  //console.log(objRequest);
 	
   try {
     const response = await fetch('http://localhost:8080/api/peticions/afegir',{
