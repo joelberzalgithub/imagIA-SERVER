@@ -77,6 +77,10 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
   const reqBody = req.body;
   const base64Images = [];
 
+  // Variables resposta IA
+  let idRequest;
+  let textResponseIA = "";
+
   // User validado
   if (!tokenValidation(reqBody.token)) {
     res.status(400).json({ status: "ERROR", message: 'Token not valid', data:{} });
@@ -89,10 +93,9 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
     base64Images.push(base64StringImg);
   }
 
-  // registrar respuesta
-  const isRegisteredDBAPI = await saveRequestDBAPI("llava", reqBody.prompt, base64Images);
-  console.log(isRegisteredDBAPI);
-  if (!isRegisteredDBAPI) {
+  // registrar petició model
+  const responseDBAPIrequest = await saveRequestDBAPI("llava", reqBody.prompt, base64Images);
+  if (responseDBAPIrequest.status !== "OK") {
     console.log("no se pudo registrar en DBAPI, saliendo...");
     return;
   }
@@ -172,9 +175,6 @@ async function saveRequestDBAPI(model, prompt, filesList) {
     listab64.push(file);
 	objRequest.imatges = file;
   }
-  // TIENE QUE SER UNA LISTA PERO DE MOMENTO SERA 1 IMAGEN SOLO
-  //objRequest.imatges = listab64[0];
-  //console.log(objRequest);
 	
   try {
     const response = await fetch('http://localhost:8080/api/peticions/afegir',{
@@ -187,14 +187,13 @@ async function saveRequestDBAPI(model, prompt, filesList) {
 
     const data = await response.json();
     console.log(data);
-    if (data.status === "OK") {
-      return true;
-    }
+    
+    return data;
+    
   } catch (error) {
     console.error(error);
   }
 
-  return false;
 }
 
 // Funcion para en un futuro validar el token
