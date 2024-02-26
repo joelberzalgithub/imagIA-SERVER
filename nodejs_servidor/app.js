@@ -46,7 +46,7 @@ app.post('/api/user/register', async (req, res) => {
   console.log("En registre d'usuari");
   const textPost = req.body;
   serverBody = {nickname : textPost.name, telefon:textPost.phone, email: textPost.email, codi_validacio:"123456789"};
-  console.log(textPost);
+  //console.log(textPost);
   try {
     const response = await fetch('http://localhost:8080/api/usuari/registrar', {
       method: 'POST',
@@ -57,7 +57,14 @@ app.post('/api/user/register', async (req, res) => {
     });
 
     const data = await response.json();
-    console.log(data);
+    console.log("data desde el server = "+data)
+    //console.log(data);
+    if (data.status === "OK") {
+      data.message = "User added";
+    } else {
+      data.message = "Couldn not add user";
+    }
+    console.log("mensage para el cliente"+data);
     res.send(data); // Send response from your database to the client
   } catch (error) {
     console.error(error);
@@ -241,6 +248,11 @@ async function saveMariaRequestResponse(id, prompt) {
   } catch (error) {
     console.error(error);
   }
+}
+
+// funcion para enviar SMS a client al registrarse
+async function sendValidationSMS(validation_code) {
+
 }
 
 // Funcion para en un futuro validar el token
