@@ -197,14 +197,9 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
 
 // funcion para guardar petición de mistral a db
 async function saveRequestDBAPI(model, prompt, filesList) {
-  let listab64 = [];
   var objRequest = {"model":model, "prompt":prompt};
 
-  for (const file of filesList) {
-    listab64.push(file);
-	objRequest.imatges = file;
-  }
-	
+	objRequest.imatges = filesList;
   try {
     const response = await fetch('http://localhost:8080/api/peticions/afegir',{
       method: 'POST',
