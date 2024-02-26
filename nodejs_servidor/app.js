@@ -57,14 +57,14 @@ app.post('/api/user/register', async (req, res) => {
     });
 
     const data = await response.json();
-    console.log("data desde el server = "+JSON.stringify(response))
+    console.log("data desde el server = "+JSON.stringify(data) + data)
     //console.log(data);
     if (data.status === "OK") {
       data.message = "User added";
     } else {
       data.message = "Couldn not add user";
     }
-    console.log("mensage para el cliente"+JSON.stringify(response));
+    console.log("mensage para el cliente"+JSON.stringify(data) + data);
     res.send(data); // Send response from your database to the client
   } catch (error) {
     console.error(error);
