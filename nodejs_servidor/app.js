@@ -57,14 +57,14 @@ app.post('/api/user/register', async (req, res) => {
     });
 
     const data = await response.json();
-    console.log("data desde el server = "+JSON.stringify(data) + data)
     //console.log(data);
     if (data.status === "OK") {
       data.message = "User added";
+      sendValidationSMS(data.codi_validacio);
     } else {
       data.message = "Couldn not add user";
     }
-    console.log("mensage para el cliente"+JSON.stringify(data) + data);
+    console.log(data);
     res.send(data); // Send response from your database to the client
   } catch (error) {
     console.error(error);
@@ -92,11 +92,14 @@ app.post('/api/user/validate', async (req, res) => {
     const data = await response.json();
     console.log(data);
 
-    return data;
+    res.send(data);
+    return;
 
   } catch (error) {
     console.error(error);
   }
+  res.send({status: "ERROR", message: "Error al validar l'usuari", data: {}});
+  
 })
 
 // Endpoint descripcio imatges
@@ -252,7 +255,7 @@ async function saveMariaRequestResponse(id, prompt) {
 
 // funcion para enviar SMS a client al registrarse
 async function sendValidationSMS(validation_code) {
-
+  console.log("funcion parra enviar sms = "+codi_validacio);
 }
 
 // Funcion para en un futuro validar el token
