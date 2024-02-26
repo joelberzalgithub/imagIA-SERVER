@@ -166,14 +166,16 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
                 const element = separatedJsonArray[index];
                 const jsonData = JSON.parse(element);
                 res.write(jsonData.response);
+                console.log(jsonData.response);
+                textResponseIA += jsonData.response;
               }
             } else {
               const jsonData = JSON.parse(jsonString);
               
               res.write(jsonData.response);
+              console.log(jsonData.response);
+              textResponseIA += jsonData.response;
             }
-            console.log(jsonData.response);
-            textResponseIA += jsonData.response;
             
           }
           
