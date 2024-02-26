@@ -121,6 +121,9 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
     return;
   }
 
+  // Peticio bona, guardem Id
+  idRequest = responseDBAPIrequest.data.id;
+
   //const url = "http://localhost:11434/api/generate";
   const url = "http://192.168.1.14:11434/api/generate";
   
@@ -162,19 +165,21 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
               for (let index = 0; index < separatedJsonArray.length; index++) {
                 const element = separatedJsonArray[index];
                 const jsonData = JSON.parse(element);
-                //console.log(jsonData.response);
                 res.write(jsonData.response);
-
               }
             } else {
               const jsonData = JSON.parse(jsonString);
-              //console.log(jsonData.response);
+              
               res.write(jsonData.response);
             }
+            console.log(jsonData.response);
+            textResponseIA += jsonData.response;
             
           }
           
       }
+      // guardem resposte a DBAPI;
+      saveMariaRequestResponse(idRequest, textResponseIA);
 
       const OkResponse = JSON.stringify({status: "OK", message: 'Succesful', data:{}});
       res.write(OkResponse); 
@@ -216,6 +221,29 @@ async function saveRequestDBAPI(model, prompt, filesList) {
     console.error(error);
   }
 
+}
+
+// funcion para enviar respuesta IA a DBAPI
+async function saveMariaRequestResponse(id, prompt) {
+  let reqBody = {};
+  reqBody.id_peticio = id;
+  reqBody.text_generat = prompt;
+
+  try {
+    const response = await fetch('http://localhost:8080/api/respostes/afegir',{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(reqBody)
+    });
+
+    const data = await response.json();
+    console.log(data);
+    
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // Funcion para en un futuro validar el token
