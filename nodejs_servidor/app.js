@@ -60,7 +60,7 @@ app.post('/api/user/register', async (req, res) => {
     //console.log(data);
     if (data.status === "OK") {
       data.message = "User added";
-      sendValidationSMS(data.codi_validacio);
+      sendValidationSMS(data.codi_validacio, textPost.phone);
     } else {
       data.message = "Couldn not add user";
     }
