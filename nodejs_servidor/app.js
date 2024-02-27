@@ -60,7 +60,7 @@ app.post('/api/user/register', async (req, res) => {
     //console.log(data);
     if (data.status === "OK") {
       data.message = "User added";
-      sendValidationSMS(data.codi_validacio, textPost.phone);
+      sendValidationSMS(data.data.codi_validacio, textPost.phone);
     } else {
       data.message = "Couldn not add user";
     }
@@ -269,8 +269,7 @@ async function sendValidationSMS(validation_code, receiver) {
       }
     });
 
-    const data = await response.json();
-    console.log(data);
+    console.log("sms enviado")
     
   } catch (error) {
     console.error(error);
