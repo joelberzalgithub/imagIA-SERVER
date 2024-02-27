@@ -78,7 +78,7 @@ app.post('/api/user/validate', async (req, res) => {
 
   const textPost = req.body;
   let objRequest = {telefon: textPost.phone, codi_validacio: textPost.number};
-  console.log("Body to DBAPI = "+objRequest);
+  console.log("Body to DBAPI = "+objRequest.toString);
 
   try {
     const response = await fetch('http://localhost:8080/api/usuaris/validar',{
@@ -254,8 +254,27 @@ async function saveMariaRequestResponse(id, prompt) {
 }
 
 // funcion para enviar SMS a client al registrarse
-async function sendValidationSMS(validation_code) {
-  console.log("funcion parra enviar sms = "+codi_validacio);
+async function sendValidationSMS(validation_code, receiver) {
+  const api_token = '9IaWFkuHTbW1inR6dQ6XuMeV3Fzlu9wGMNYLVaaMlgY98N4aXyWWfThW4kUcnuxR'; // Replace with your actual API token
+  const username = 'ams24'; // Replace with your actual username
+  const text = validation_code; // Assuming validation_code is provided as a parameter
+
+  const url = `http://192.168.1.16:8000/api/sendsms/?api_token=${api_token}&username=${username}&text=${text}&receiver=${receiver}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const data = await response.json();
+    console.log(data);
+    
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // Funcion para en un futuro validar el token
