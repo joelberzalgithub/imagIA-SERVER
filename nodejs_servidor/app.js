@@ -78,10 +78,10 @@ app.post('/api/user/validate', async (req, res) => {
 
   const textPost = req.body;
   let objRequest = {telefon: textPost.phone, codi_validacio: textPost.number};
-  console.log("Body to DBAPI = "+objRequest);
+  console.log("Body to DBAPI = " + JSON.stringify(objRequest));
 
   try {
-    const response = await fetch('http://localhost:8080/api/usuaris/validar',{
+    const response = await fetch('http://localhost:8080/api/usuari/validar',{
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -255,7 +255,7 @@ async function saveMariaRequestResponse(id, prompt) {
 
 // funcion para enviar SMS a client al registrarse
 async function sendValidationSMS(validation_code) {
-  console.log("funcion parra enviar sms = "+codi_validacio);
+  console.log("funcion parra enviar sms = "+validation_code);
 }
 
 // Funcion para en un futuro validar el token
