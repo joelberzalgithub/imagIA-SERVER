@@ -112,13 +112,6 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
   let idRequest;
   let textResponseIA = "";
 
-  // User validado
-  if (!tokenValidation(reqBody.token)) {
-    res.status(400).json({ status: "ERROR", message: 'Token not valid', data:{} });
-    return;
-  }
-
-
   for (const file of req.files) {
     const base64StringImg = file.buffer.toString('base64');
     base64Images.push(base64StringImg);
@@ -276,12 +269,3 @@ async function sendValidationSMS(validation_code, receiver) {
   }
 }
 
-// Funcion para en un futuro validar el token
-function tokenValidation(providedToken) {
-  // de momento esta validacion dummy
-  if (providedToken =="123456789") {
-    return true;
-  }
-
-  return false;
-}
