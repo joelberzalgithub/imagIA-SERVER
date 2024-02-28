@@ -60,9 +60,12 @@ app.post('/api/user/register', async (req, res) => {
     //console.log(data);
     if (data.status === "OK") {
       data.message = "User added";
+      data.data = {};
       sendValidationSMS(data.data.codi_validacio, textPost.phone);
     } else {
       data.message = "Couldn not add user";
+      data.status = "ERROR";
+      data.data = {};
     }
     console.log(data);
     res.send(data); // Send response from your database to the client
@@ -118,7 +121,8 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
   }
 
   // registrar petició model
-  const responseDBAPIrequest = await saveRequestDBAPI("llava", reqBody.prompt, base64Images);
+  const responseDBAPIrequest = await saveRequestDBAPI("llava", reqBody.prompt, reqBody.token, base64Images);
+  console.log(responseDBAPIrequest);
   if (responseDBAPIrequest.status !== "OK") {
     console.log("no se pudo registrar en DBAPI, saliendo...");
     return;
@@ -199,15 +203,15 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
 })
 
 // funcion para guardar petición de mistral a db
-async function saveRequestDBAPI(model, prompt, filesList) {
-  var objRequest = {"model":model, "prompt":prompt};
+async function saveRequestDBAPI(model, prompt, token,filesList) {
+  var objRequest = {"model":model, "prompt":prompt, "imatges":filesList};
 
-	objRequest.imatges = filesList;
   try {
     const response = await fetch('http://localhost:8080/api/peticions/afegir',{
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+	'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(objRequest)
     });
@@ -252,7 +256,7 @@ async function sendValidationSMS(validation_code, receiver) {
   const username = 'ams24'; // Replace with your actual username
   const text = validation_code; // Assuming validation_code is provided as a parameter
 
-  const url = `http://192.168.1.16:8000/api/sendsms/?api_token=${api_token}&username=${username}&text=${text}&receiver=${receiver}`;
+  const url = `http://192.168.1.16:8000/api/sendsms/?api_token=${api_token}&username=${username}&text=${validation_code}&receiver=${receiver}`;
 
   try {
     const response = await fetch(url, {
