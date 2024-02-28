@@ -202,6 +202,34 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
 
 })
 
+app.post('/api/user/login', async (req, res) => {
+  console.log("En user login");
+
+  const textPost = req.body;
+  let objRequest = {email: textPost.email, password: textPost.password};
+  console.log("Body to DBAPI = " + JSON.stringify(objRequest));
+
+  try {
+    const response = await fetch('http://localhost:8080/api/usuari/login',{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(objRequest)
+    });
+
+    const data = await response.json();
+    console.log(data);
+
+    res.send(data);
+    return;
+
+  } catch (error) {
+    console.error(error);
+  }
+  res.send({status: "ERROR", message: "Error a login administrador", data: {}});
+});
+
 // funcion para guardar petición de mistral a db
 async function saveRequestDBAPI(model, prompt, token,filesList) {
   var objRequest = {"model":model, "prompt":prompt, "imatges":filesList};
