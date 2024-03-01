@@ -5,6 +5,20 @@ const multer = require('multer');
 const url = require('url');
 const { isNullOrUndefined } = require('util');
 
+// Configuracio logs
+const log4js = require('log4js');
+
+log4js.configure({
+  appenders: {
+    console: { type: 'console' },
+    file: { type: 'file', filename: 'node_imagia.out' }
+  },
+  categories: {
+    default: { appenders: ['console', 'file'], level: 'info' }
+  }
+});
+
+const logger = log4js.getLogger();
 
 const app = express()
 //const port = process.env.PORT || 3000
@@ -231,28 +245,25 @@ app.post('/api/user/login', async (req, res) => {
   res.send({status: "ERROR", message: "Error a login administrador", data: {}});
 });
 
-app.post('/api/users/admin_get_list', async (req, res) => {
-  console.log("En admin get list");
+app.get('/api/users/admin_get_list', async (req, res) => {
+  console.log("In admin get list");
 
   try {
-    const response = await fetch('http://localhost:8080/api/usuari/login',{
+    const response = await fetch('http://localhost:8080/api/usuari/login', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(objRequest)
+      }
     });
 
     const data = await response.json();
-    console.log("Llista obtinguda amb "+data.data.length+" usuaris");
+    console.log(`Got a list of ${data.data.length} users`);
 
     res.send(data);
-    return;
-
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching user list:', error);
+    res.status(500).send({ status: "ERROR", message: "Error fetching user list", data: [] });
   }
-  res.send({status: "ERROR", message: "Error al conseguir llista d'usuaris", data: []});
 });
 
 // funcion para guardar petición de mistral a db
