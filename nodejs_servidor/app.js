@@ -219,7 +219,8 @@ app.post('/api/user/login', async (req, res) => {
     });
 
     const data = await response.json();
-    console.log(data);
+    //console.log(data);
+    console.log("status login admin = " + data.status);
 
     res.send(data);
     return;
