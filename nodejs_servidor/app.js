@@ -230,6 +230,30 @@ app.post('/api/user/login', async (req, res) => {
   res.send({status: "ERROR", message: "Error a login administrador", data: {}});
 });
 
+app.post('/api/users/admin_get_list', async (req, res) => {
+  console.log("En admin get list");
+
+  try {
+    const response = await fetch('http://localhost:8080/api/usuari/login',{
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(objRequest)
+    });
+
+    const data = await response.json();
+    console.log("Llista obtinguda amb "+data.data.length+" usuaris");
+
+    res.send(data);
+    return;
+
+  } catch (error) {
+    console.error(error);
+  }
+  res.send({status: "ERROR", message: "Error al conseguir llista d'usuaris", data: []});
+});
+
 // funcion para guardar petición de mistral a db
 async function saveRequestDBAPI(model, prompt, token,filesList) {
   var objRequest = {"model":model, "prompt":prompt, "imatges":filesList};
