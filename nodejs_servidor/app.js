@@ -216,6 +216,7 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
 
 })
 
+// endpoint login admin
 app.post('/api/user/login', async (req, res) => {
   console.log("En user login");
 
@@ -245,6 +246,7 @@ app.post('/api/user/login', async (req, res) => {
   res.send({status: "ERROR", message: "Error a login administrador", data: {}});
 });
 
+// endpoint conseguir lista usuarios com admin
 app.get('/api/users/admin_get_list', async (req, res) => {
   console.log("In admin get list");
 
@@ -265,6 +267,42 @@ app.get('/api/users/admin_get_list', async (req, res) => {
     res.status(500).send({ status: "ERROR", message: "Error fetching user list", data: [] });
   }
 });
+
+// Endpoint canvi pla usuari com admin
+app.post('/api/users/admin_change_plan', async (req, res) => {
+  console.log("En admin change plan");
+
+  const textPost = req.body;
+
+  if (('phone_number' in textPost || 'nickname' in textPost || 'email' in textPost) && 'plan' in textPost) {
+    res.send({status: "OK", message: "Pla canviat correctament", data: textPost});
+
+  } else {
+    res.send({status: "ERROR", message: "El camps no són correctes", data: {}});
+
+  }
+
+  /*try {
+    const response = await fetch('http://localhost:8080/api/usuari/validar',{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(objRequest)
+    });
+
+    const data = await response.json();
+    console.log(data);
+
+    res.send(data);
+    return;
+
+  } catch (error) {
+    console.error(error);
+  }
+  res.send({status: "ERROR", message: "Error al validar l'usuari", data: {}});*/
+  
+})
 
 // funcion para guardar petición de mistral a db
 async function saveRequestDBAPI(model, prompt, token,filesList) {
