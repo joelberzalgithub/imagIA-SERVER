@@ -251,9 +251,9 @@ app.get('/api/users/admin_get_list', async (req, res) => {
   console.log("In admin get list");
 
   const token = req.headers.authorization;
-  
+
   try {
-    const response = await fetch('http://localhost:8080/api/usuari/login', {
+    const response = await fetch('http://localhost:8080/api/usuaris/admin_obtenir_llista', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
