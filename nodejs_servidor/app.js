@@ -250,11 +250,14 @@ app.post('/api/user/login', async (req, res) => {
 app.get('/api/users/admin_get_list', async (req, res) => {
   console.log("In admin get list");
 
+  const token = req.headers.authorization;
+  
   try {
     const response = await fetch('http://localhost:8080/api/usuari/login', {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       }
     });
 
@@ -313,7 +316,7 @@ async function saveRequestDBAPI(model, prompt, token,filesList) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-	'Authorization': `Bearer ${token}`
+	      'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(objRequest)
     });
