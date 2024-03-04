@@ -81,7 +81,7 @@ app.post('/api/user/register', async (req, res) => {
       data.status = "ERROR";
       data.data = {};
     }
-    console.log(data);
+    logger.info("Server response from user request for registering" + data);
     res.send(data); // Send response from your database to the client
   } catch (error) {
     console.error(error);
