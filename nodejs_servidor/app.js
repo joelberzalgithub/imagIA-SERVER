@@ -126,6 +126,9 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
   const reqBody = req.body;
   const base64Images = [];
 
+  // Mirar si usuario tiene tiradas
+
+
   // Variables resposta IA
   let idRequest;
   let textResponseIA = "";
@@ -135,14 +138,16 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
     base64Images.push(base64StringImg);
   }
 
-  // 
-
   // registrar petició model
   const responseDBAPIrequest = await saveRequestDBAPI("llava", reqBody.prompt, reqBody.token, base64Images);
   logger.debug(responseDBAPIrequest);
   if (responseDBAPIrequest.status !== "OK") {
     logger.info("No se pudo registrar la peticion en la DBAPI, abortando...");
     return;
+  } else if (responseDBAPIrequest.status == "ERROR" && responseDBAPIrequest.message == "429") {
+    logger.info("L'usuari no te quota suficient");
+    
+    res.status(429).send(responseDBAPIrequest);
   }
 
   // Peticio bona, guardem Id
@@ -258,7 +263,7 @@ app.get('/api/users/admin_get_list', async (req, res) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `${token}`
       }
     });
     
@@ -358,4 +363,3 @@ async function sendValidationSMS(validation_code, receiver) {
     logger.error("Error al enviar SMS",error);
   }
 }
-
