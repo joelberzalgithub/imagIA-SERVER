@@ -71,17 +71,17 @@ app.post('/api/user/register', async (req, res) => {
     });
 
     const data = await response.json();
-
+    logger.info("Response from server:", data, JSON.stringify(data));
     if (data.status === "OK") {
       data.message = "User added";
-      sendValidationSMS(data.data.codi_validacio, textPost.phone);
+      //sendValidationSMS(data.data.codi_validacio, textPost.phone);
       data.data = {};
     } else {
       data.message = "Couldn not add user";
       data.status = "ERROR";
       data.data = {};
     }
-    logger.info("Resposta per al client = " + data);
+    logger.info("Resposta per al client = " + JSON.stringify(data));
     res.send(data); // Send response from your database to the client
   } catch (error) {
     logger.error("Error al registrar usuari");
@@ -282,7 +282,7 @@ app.post('/api/users/admin_change_plan', async (req, res) => {
   logger.info("En admin change plan");
 
   const textPost = req.body;
-
+  logger.info("info de l'usuari a canviar pla", textPost);
   if (('phone_number' in textPost || 'nickname' in textPost || 'email' in textPost) && 'plan' in textPost) {
     res.send({status: "OK", message: "Pla canviat correctament", data: textPost});
 
