@@ -257,10 +257,11 @@ app.get('/api/users/admin_get_list', async (req, res) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `${token}`
       }
     });
-
+    
+    console.log(response);
     const data = await response.json();
     console.log(`Got a list of ${data.data.length} users`);
 
