@@ -280,15 +280,36 @@ app.get('/api/users/admin_get_list', async (req, res) => {
 // Endpoint canvi pla usuari com admin
 app.post('/api/users/admin_change_plan', async (req, res) => {
   logger.info("En admin change plan");
-
+  const token = req.headers.authorization;
   const textPost = req.body;
   logger.info("info de l'usuari a canviar pla", textPost);
   if (('phone_number' in textPost || 'nickname' in textPost || 'email' in textPost) && 'plan' in textPost) {
-    res.send({status: "OK", message: "Pla canviat correctament", data: textPost});
+
+    try {
+      const response = await fetch('http://localhost:8080/api/usuaris/admin_canvi_pla',{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `${token}`
+        },
+        body: JSON.stringify({telefon:textPost.phone_number, pla:textPost.plan})
+      });
+  
+      const data = await response.json();
+      logger.info("status canvi plan = " + data.status);
+  
+      res.send(data);
+      return;
+  
+    } catch (error) {
+      logger.error("error canvi pla "+error);
+    }
+    res.send({status: "ERROR", message: "Error al cambiar plan", data: {}});
+    //res.send({status: "OK", message: "Pla canviat correctament", data: textPost});
 
   } else {
     res.send({status: "ERROR", message: "El camps no són correctes", data: {}});
-
+    logger.error("els camps no son correctes");
   }
   
 })
