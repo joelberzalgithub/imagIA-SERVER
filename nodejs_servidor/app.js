@@ -57,10 +57,10 @@ function shutDown() {
 
 // Endpoint registrar usuari
 app.post('/api/user/register', async (req, res) => {
-  console.log("En registre d'usuari");
+  logger.info("Endpoint registrar usuari");
   const textPost = req.body;
   serverBody = {nickname : textPost.name, telefon:textPost.phone, email: textPost.email, codi_validacio:"123456789"};
-  //console.log(textPost);
+
   try {
     const response = await fetch('http://localhost:8080/api/usuari/registrar', {
       method: 'POST',
@@ -71,7 +71,7 @@ app.post('/api/user/register', async (req, res) => {
     });
 
     const data = await response.json();
-    //console.log(data);
+
     if (data.status === "OK") {
       data.message = "User added";
       sendValidationSMS(data.data.codi_validacio, textPost.phone);
@@ -81,21 +81,22 @@ app.post('/api/user/register', async (req, res) => {
       data.status = "ERROR";
       data.data = {};
     }
-    logger.info("Server response from user request for registering" + data);
+    logger.info("Resposta per al client = " + data);
     res.send(data); // Send response from your database to the client
   } catch (error) {
-    console.error(error);
+    logger.error("Error al registrar usuari");
+
     res.status(500).send('Internal Server Error');
   }
 })
 
 // Endpoint validar usuari
 app.post('/api/user/validate', async (req, res) => {
-  console.log("En validar usuari");
+  logger.info("Endpoint validar usuari");
 
   const textPost = req.body;
   let objRequest = {telefon: textPost.phone, codi_validacio: textPost.number};
-  console.log("Body to DBAPI = " + JSON.stringify(objRequest));
+  logger.debug("Body to DBAPI = " + JSON.stringify(objRequest));
 
   try {
     const response = await fetch('http://localhost:8080/api/usuari/validar',{
@@ -106,14 +107,14 @@ app.post('/api/user/validate', async (req, res) => {
       body: JSON.stringify(objRequest)
     });
 
-    const data = await response.json();
-    console.log(data);
+    const data = await response.json();;
+    logger.debug("Resposta per al client = " + JSON.stringify(data));
 
     res.send(data);
     return;
 
   } catch (error) {
-    console.error(error);
+    logger.error("Error el validar l'usuari");
   }
   res.send({status: "ERROR", message: "Error al validar l'usuari", data: {}});
   
@@ -121,7 +122,7 @@ app.post('/api/user/validate', async (req, res) => {
 
 // Endpoint descripcio imatges
 app.post('/api/maria/image', upload.array('file'), async (req, res) => {
-  console.log("In endpoint maria/image")
+  logger.info("Endpoint descripció imatges");
   const reqBody = req.body;
   const base64Images = [];
 
@@ -134,11 +135,13 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
     base64Images.push(base64StringImg);
   }
 
+  // 
+
   // registrar petició model
   const responseDBAPIrequest = await saveRequestDBAPI("llava", reqBody.prompt, reqBody.token, base64Images);
-  console.log(responseDBAPIrequest);
+  logger.debug(responseDBAPIrequest);
   if (responseDBAPIrequest.status !== "OK") {
-    console.log("no se pudo registrar en DBAPI, saliendo...");
+    logger.info("No se pudo registrar la peticion en la DBAPI, abortando...");
     return;
   }
 
@@ -150,7 +153,7 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
   
   var textImagePrompt = reqBody.prompt
   if (isBlank(textImagePrompt)) {
-    console.log("texto vacio");
+    logger.info("texto vacio");
     textImagePrompt =  "describe this image";
   }
   const data = {"model":"llava", "prompt": textImagePrompt, "images":base64Images};
@@ -166,7 +169,7 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      //console.log(response.body)
+
       const reader = response.body.getReader();
       while (true) {
           const { done, value } = await reader.read();
@@ -178,23 +181,22 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
           if (value != null) {
             const jsonString = new TextDecoder().decode(value);
             separatedJsonArray = jsonString.split("\n");
-            //console.log('Raw JSON:', jsonString);
+
             separatedJsonArray = separatedJsonArray.filter(e => e !== '')
-            //console.log(separatedJsonArray);
 
             if (separatedJsonArray.length > 1) {
               for (let index = 0; index < separatedJsonArray.length; index++) {
                 const element = separatedJsonArray[index];
                 const jsonData = JSON.parse(element);
                 res.write(jsonData.response);
-                console.log(jsonData.response);
+                logger.debug(jsonData.response);
                 textResponseIA += jsonData.response;
               }
             } else {
               const jsonData = JSON.parse(jsonString);
               
               res.write(jsonData.response);
-              console.log(jsonData.response);
+              logger.debug(jsonData.response);
               textResponseIA += jsonData.response;
             }
             
@@ -210,7 +212,7 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
     })
     
     .catch(error => {
-      console.error('Error:', error);
+      logger.error("Error "+error);
       res.status(400).json({ status: "ERROR", message: 'Wrong call', data:{} });
     });
 
@@ -218,11 +220,11 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
 
 // endpoint login admin
 app.post('/api/user/login', async (req, res) => {
-  console.log("En user login");
+  logger.info("Endpoint user admin login");
 
   const textPost = req.body;
   let objRequest = {email: textPost.email, password: textPost.password};
-  console.log("Body to DBAPI = " + JSON.stringify(objRequest));
+  logger.info("Body to DBAPI = " + JSON.stringify(objRequest));
 
   try {
     const response = await fetch('http://localhost:8080/api/usuari/login',{
@@ -234,21 +236,20 @@ app.post('/api/user/login', async (req, res) => {
     });
 
     const data = await response.json();
-    //console.log(data);
-    console.log("status login admin = " + data.status);
+    logger.info("status login admin = " + data.status);
 
     res.send(data);
     return;
 
   } catch (error) {
-    console.error(error);
+    logger.error("error admin login "+error);
   }
   res.send({status: "ERROR", message: "Error a login administrador", data: {}});
 });
 
 // endpoint conseguir lista usuarios com admin
 app.get('/api/users/admin_get_list', async (req, res) => {
-  console.log("In admin get list");
+  logger.info("Endpoint get list com admin");
 
   const token = req.headers.authorization;
 
@@ -260,20 +261,20 @@ app.get('/api/users/admin_get_list', async (req, res) => {
         'Authorization': `Bearer ${token}`
       }
     });
-
+    
     const data = await response.json();
-    console.log(`Got a list of ${data.data.length} users`);
+    logger.info(`Got a list of ${data.data.length} users`);
 
     res.send(data);
   } catch (error) {
-    console.error('Error fetching user list:', error);
+    logger.error('Error fetching user list:', error);
     res.status(500).send({ status: "ERROR", message: "Error fetching user list", data: [] });
   }
 });
 
 // Endpoint canvi pla usuari com admin
 app.post('/api/users/admin_change_plan', async (req, res) => {
-  console.log("En admin change plan");
+  logger.info("En admin change plan");
 
   const textPost = req.body;
 
@@ -284,26 +285,6 @@ app.post('/api/users/admin_change_plan', async (req, res) => {
     res.send({status: "ERROR", message: "El camps no són correctes", data: {}});
 
   }
-
-  /*try {
-    const response = await fetch('http://localhost:8080/api/usuari/validar',{
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(objRequest)
-    });
-
-    const data = await response.json();
-    console.log(data);
-
-    res.send(data);
-    return;
-
-  } catch (error) {
-    console.error(error);
-  }
-  res.send({status: "ERROR", message: "Error al validar l'usuari", data: {}});*/
   
 })
 
@@ -322,12 +303,12 @@ async function saveRequestDBAPI(model, prompt, token,filesList) {
     });
 
     const data = await response.json();
-    console.log(data);
+    logger.info(data);
     
     return data;
     
   } catch (error) {
-    console.error(error);
+    logger.error("Error al afegir peticio",error);
   }
 
 }
@@ -348,10 +329,10 @@ async function saveMariaRequestResponse(id, prompt) {
     });
 
     const data = await response.json();
-    console.log(data);
+    logger.info(data);
     
   } catch (error) {
-    console.error(error);
+    logger.error("Error al guardar resposta",error);
   }
 }
 
@@ -371,10 +352,10 @@ async function sendValidationSMS(validation_code, receiver) {
       }
     });
 
-    console.log("sms enviado")
+    logger.info("sms enviado")
     
   } catch (error) {
-    console.error(error);
+    logger.error("Error al enviar SMS",error);
   }
 }
 
