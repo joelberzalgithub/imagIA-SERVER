@@ -127,7 +127,13 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
   const base64Images = [];
 
   // Mirar si usuario tiene tiradas
-
+  const quotaStatus = await checkQuota(reqBody.token);
+  if (quotaStatus.status == "ERROR" && responseDBAPIrequest.message == "429") {
+    logger.info("L'usuari no te quota suficient");
+    
+    res.status(429).send(quotaStatus);
+    return;
+  }
 
   // Variables resposta IA
   let idRequest;
@@ -144,11 +150,7 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
   if (responseDBAPIrequest.status !== "OK") {
     logger.info("No se pudo registrar la peticion en la DBAPI, abortando...");
     return;
-  } else if (responseDBAPIrequest.status == "ERROR" && responseDBAPIrequest.message == "429") {
-    logger.info("L'usuari no te quota suficient");
-    
-    res.status(429).send(responseDBAPIrequest);
-  }
+  } 
 
   // Peticio bona, guardem Id
   idRequest = responseDBAPIrequest.data.id;
@@ -326,6 +328,28 @@ async function saveRequestDBAPI(model, prompt, token,filesList) {
 	      'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(objRequest)
+    });
+
+    const data = await response.json();
+    logger.info(data);
+    
+    return data;
+    
+  } catch (error) {
+    logger.error("Error al afegir peticio",error);
+  }
+
+}
+
+// funcion para comprobar si se cumple la quota
+async function checkQuota(token) {
+  try {
+    const response = await fetch('http://localhost:8080/api/usuaris/consultar_quota',{
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+	      'Authorization': `Bearer ${token}`
+      },
     });
 
     const data = await response.json();
