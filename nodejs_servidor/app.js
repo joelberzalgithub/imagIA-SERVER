@@ -128,7 +128,7 @@ app.post('/api/maria/image', upload.array('file'), async (req, res) => {
 
   // Mirar si usuario tiene tiradas
   const quotaStatus = await checkQuota(reqBody.token);
-  if (quotaStatus.status == "ERROR" && responseDBAPIrequest.message == "429") {
+  if (quotaStatus.status == "ERROR" && quotaStatus.message == "429") {
     logger.info("L'usuari no te quota suficient");
     
     res.status(429).send(quotaStatus);
