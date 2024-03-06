@@ -74,7 +74,7 @@ app.post('/api/user/register', async (req, res) => {
     logger.info("Response from server:", data, JSON.stringify(data));
     if (data.status === "OK") {
       data.message = "User added";
-      //sendValidationSMS(data.data.codi_validacio, textPost.phone);
+      sendValidationSMS(data.data.codi_validacio, textPost.phone);
       data.data = {};
     } else {
       data.message = "Couldn not add user";
